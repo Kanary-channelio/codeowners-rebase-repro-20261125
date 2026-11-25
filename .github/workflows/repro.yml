@@ -1,0 +1,28 @@
+name: 재현 PR 생성
+on:
+  workflow_dispatch:
+    inputs:
+      head:
+        description: 테스트 PR의 head 브랜치
+        required: true
+        type: string
+      base:
+        description: 테스트 PR의 base 브랜치
+        required: true
+        default: main
+        type: string
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      HEAD_BRANCH: ${{ inputs.head }}
+      BASE_BRANCH: ${{ inputs.base }}
+    steps:
+      - name: 봇 계정으로 재현 PR 생성
+        run: |
+          gh pr create --repo "$GH_REPO" --head "$HEAD_BRANCH" --base "$BASE_BRANCH" --title "테스트: 리베이스 후 코드오너 승인 조건 확인" --body "격리된 재현 실험입니다. 잘못된 베이스 때문에 owned.txt와 unowned.txt 변경이 함께 포함된 상태에서 시작하고, 리베이스로 owned.txt 변경을 제거한 뒤 승인 조건과 리뷰 요청을 비교합니다. 이 PR은 머지하지 않습니다."
